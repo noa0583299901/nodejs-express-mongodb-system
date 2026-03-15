@@ -1,0 +1,106 @@
+
+body {
+    font-family: 'Assistant', 'Segoe UI', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 40px;
+    direction: rtl;
+    color: #333;
+}
+
+h1 {
+    color: #1a73e8;
+    border-bottom: 3px solid #1a73e8;
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+
+.add-btn {
+    display: inline-block;
+    background-color: #34a853;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    transition: background 0.3s;
+}
+
+.add-btn:hover { background-color: #2d8e47; }
+
+.lessons-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.lessons-table th {
+    background-color: #1a73e8;
+    color: white;
+    padding: 15px;
+    text-align: right;
+}
+
+.lessons-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.lessons-table tr:hover { background-color: #f8f9fa; }
+
+
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+.status-pending { background-color: #fff4e5; color: #ff9800; }
+.status-confirmed { background-color: #e6f4ea; color: #1e8e3e; }
+
+
+.delete-btn {
+    background-color: #ea4335;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.delete-btn:hover { background-color: #d33828; }
+.alert {
+    padding: 15px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    direction: rtl; 
+    text-align: right;
+}
+.container.mt-5 {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+}

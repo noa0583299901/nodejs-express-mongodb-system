@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התחברות למערכת</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #5a67d8; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #edf2f7; border-radius: 12px; background: #fcfcfc; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 15px; background: linear-gradient(to right, #667eea, #764ba2); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.2s; }
+        .alert-error { color: #c53030; background: #fff5f5; padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>התחברות</h1>
+        <div id="errorBox" class="alert-error"></div>
+        <form id="loginForm">
+            <input type="text" name="username" placeholder="שם משתמש" required>
+            <input type="password" name="password" placeholder="סיסמה" required>
+            <button type="submit">התחברות</button>
+        </form>
+        <a href="/auth/signup" style="margin-top: 20px; display: block; color: #667eea; text-decoration: none; font-size: 0.9em;">צור חשבון חדש</a>
+    </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const eb = document.getElementById("errorBox");
+            eb.style.display = "none";
+            try {
+                const res = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: e.target.username.value, password: e.target.password.value })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    sessionStorage.setItem("token", data.token);
+                    sessionStorage.setItem("username", data.username);
+                    sessionStorage.setItem("role", data.role);
+                    window.location.href = "/lessons";
+                } else {
+                    eb.innerText = data.error || "פרטים שגויים";
+                    eb.style.display = "block";
+                }
+            } catch (err) { eb.innerText = "תקלה בתקשורת"; eb.style.display = "block"; }
+        });
+    </script>
+</body>
+</html>

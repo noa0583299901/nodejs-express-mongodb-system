@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרטי שיעור</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7f6; direction: rtl; text-align: right; font-family: 'Segoe UI', sans-serif; }
+        .top-nav { background: #3f51b5; padding: 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logout-link { color: white; text-decoration: none; border: 1px solid white; padding: 4px 12px; border-radius: 50px; font-size: 0.85rem; cursor: pointer; }
+        .logout-link:hover { background: white; color: #3f51b5; }
+        .card-main { border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; padding: 40px; margin-top: 30px; }
+        .admin-box { background: #eef2f7; border-right: 5px solid #3f51b5; border-radius: 15px; padding: 25px; margin-top: 20px; }
+        .loading-spinner { text-align: center; margin-top: 50px; }
+        #statusMessage { display: none; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav shadow-sm">
+        <a href="/lessons" class="text-white text-decoration-none fw-bold">← חזרה לרשימה</a>
+        <span onclick="logout()" class="logout-link">יציאה מהמערכת</span>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card-main">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="fw-bold m-0" style="color: #1a237e;" id="lessonSubject"></h1>
+                        <span id="statusBadge" class="badge rounded-pill px-3 py-2"></span>
+                    </div>
+
+                    <p class="fs-5 text-muted">שם מבקש השיעור: <strong class="text-dark" id="studentName"></strong></p>
+                    
+                    <div class="bg-light p-4 rounded-4 mb-4" style="border-right: 4px solid #3f51b5;">
+                        <h6 class="fw-bold text-secondary">תיאור הבקשה:</h6>
+                        <p class="mb-0" id="lessonContent"></p>
+                    </div>
+
+                    <div class="mt-4">
+                        <span class="text-muted d-block small">מחיר שנקבע:</span>
+                        <h2 class="fw-bold" style="color: #3f51b5;">₪<span id="lessonPrice"></span></h2>
+                    </div>
+                </div>
+
+                <div id="adminPanel" class="admin-box shadow-sm" style="display: none;">
+                    <h5 class="fw-bold mb-3">🛠️ ניהול שיעור (מורה)</h5>
+                    <form id="updateForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">עדכון מחיר:</label>
+                                <input type="number" id="inputPrice" name="price" class="form-control rounded-pill">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">סטטוס בקשה:</label>
+                                <select id="selectStatus" name="status" class="form-select rounded-pill">
+                                    <option value="pending">ממתין</option>
+                                    <option value="active">פעיל</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-3 text-center">
+                                <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold" style="background: #3f51b5;">שמור שינויים</button>
+                                <div id="statusMessage"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loader" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>טוען פרטי שיעור...</p>
+    </div>
+
+    <script>
+        const token = sessionStorage.getItem("token");
+        const role = sessionStorage.getItem("role");
+        const lessonId = "<%= id %>";
+
+        if (!token) window.location.href = "/auth/login";
+
+        async function fetchLessonDetails() {
+            try {
+                const res = await fetch(`/lessons/api/${lessonId}`, {
+                    headers: { "Authorization": "Bearer " + token }
+                });
+
+                if (!res.ok) throw new Error();
+
+                const lesson = await res.json();
+
+                document.getElementById("lessonSubject").innerText = lesson.subject;
+                document.getElementById("studentName").innerText = lesson.studentName;
+                document.getElementById("lessonContent").innerText = lesson.content || 'אין פירוט נוסף.';
+                document.getElementById("lessonPrice").innerText = lesson.price || '0.00';
+                
+                const badge = document.getElementById("statusBadge");
+                badge.innerText = lesson.status === 'pending' ? 'במתנה' : 'מאושר';
+                badge.className = `badge rounded-pill px-3 py-2 bg-${lesson.status === 'pending' ? 'warning' : 'success'}`;
+
+                if (role === 'admin') {
+                    document.getElementById("adminPanel").style.display = "block";
+                    document.getElementById("inputPrice").value = lesson.price;
+                    document.getElementById("selectStatus").value = lesson.status;
+                }
+
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("mainContent").style.display = "block";
+
+            } catch (err) {
+                window.location.href = "/lessons";
+            }
+        }
+
+        document.getElementById("updateForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const statusMsg = document.getElementById("statusMessage");
+            
+            const price = document.getElementById("inputPrice").value;
+            const status = document.getElementById("selectStatus").value;
+
+            try {
+                const res = await fetch(`/lessons/admin-update/${lessonId}`, {
+                    method: 'PUT',
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token 
+                    },
+                    body: JSON.stringify({ price, status })
+                });
+
+                if (res.ok) {
+                   location.reload(); 
+                } else {
+                    statusMsg.innerText = "שגיאה בעדכון";
+                    statusMsg.style.color = "red";
+                    statusMsg.style.display = "block";
+                }
+            } catch (err) {
+                statusMsg.innerText = "תקלה בתקשורת";
+                statusMsg.style.display = "block";
+            }
+        });
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = "/auth/login";
+        }
+
+        fetchLessonDetails();
+    </script>
+</body>
+</html>

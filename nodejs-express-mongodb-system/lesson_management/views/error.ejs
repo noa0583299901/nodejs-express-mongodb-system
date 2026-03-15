@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>שגיאה - פורטל למידה</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: sans-serif; }
+        .error-card {
+            background: white; border-radius: 30px; padding: 60px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center;
+            max-width: 550px; width: 90%; margin-top: 10vh;
+        }
+        .icon-box { font-size: 100px; margin-bottom: 20px; color: #ff9800; }
+        .btn-main { background-color: #3f51b5; color: white; border-radius: 50px; padding: 12px 40px; border: none; font-weight: bold; text-decoration: none; }
+        .btn-main:hover { background-color: #303f9f; color: white; }
+    </style>
+</head>
+<body class="d-flex justify-content-center">
+    <div class="error-card">
+        <div class="icon-box">⚠️</div>
+        <h2 class="fw-bold mb-3" style="color: #3f51b5;">גישה מוגבלת</h2>
+        <p class="text-muted mb-4 fs-5">
+            <%= message || "נראה שהמערכת מזהה אותך כתלמיד. פעולה זו מיועדת למנהלים בלבד." %>
+        </p>
+        <div class="d-grid gap-3">
+            <a href="/lessons" class="btn-main">חזרה לפורטל הלמידה</a>
+            <a href="/auth/logout" class="text-decoration-none text-muted small">התנתקות וכניסה מחדש כמנהל</a>
+        </div>
+    </div>
+</body>
+</html>
